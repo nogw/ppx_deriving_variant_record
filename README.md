@@ -1,4 +1,4 @@
-# [*WIP*][@@deriving mk_record]
+# [@@deriving mk_record]
 
 deriving Mk_record is a [ppx_deriving](https://github.com/ocaml-ppx/ppx_deriving) plugin that generates a constructor for variant records, Given a variant record, a function is generated that accepts all fields as arguments or labeled arguments
 
