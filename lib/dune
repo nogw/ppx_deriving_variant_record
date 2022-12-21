@@ -1,0 +1,4 @@
+(library
+ (name ppx_deriving_variant_record)
+ (kind ppx_deriver)
+ (libraries ppxlib))
