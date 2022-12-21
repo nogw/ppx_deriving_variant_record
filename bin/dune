@@ -1,0 +1,4 @@
+(executable
+ (public_name ppx_deriving_variant_record)
+ (name main)
+ (libraries ppx_deriving_variant_record))
