@@ -1,9 +1,29 @@
-module Ut = Ppx_deriving_utils
 module List = ListLabels
+module Ut = Ppx_deriving_utils
+module Ty = Ut.Type
 open Ppxlib
+open Asttypes
+open Parsetree
 open Ast_builder.Default
 
+type options = { labels : bool }
+
 let deriver = "mk_record"
+
+let get_expr ~deriver conv expr =
+  match conv expr with
+  | Error desc -> failwith (deriver ^ ":" ^ desc ^ " expected")
+  | Ok v -> v
+
+let parse_options options =
+  let labels = ref false in
+  let aux (name, expr) =
+    match name with
+    | "labels" -> labels := (get_expr ~deriver Ut.get_bool) expr
+    | _ -> failwith "[todo]"
+  in
+  options |> List.iter ~f:aux;
+  { labels = !labels }
 
 let impl_make_record ~ptype_name (constructor : constructor_declaration) =
   let { txt = name; _ } = constructor.pcd_name in
@@ -22,8 +42,8 @@ let intf_make_record ~ptype_name (constructor : constructor_declaration) =
   let loc = constructor.pcd_loc in
   let new_name = Ut.make_let_name name ~ptype_name in
   let new_args = fst (Ut.make_arguments constructor.pcd_args) in
-  Ut.make_sig loc
-    ~ty:(Ut.make_arrow ~loc new_args (Ut.make_const ~loc ptype_name.txt))
+  Ty.make_sig loc
+    ~ty:(Ty.make_arrow ~loc new_args (Ty.make_const ~loc ptype_name.txt))
     ~name:new_name
 
 let generate_impl ~ctxt (_rec_flag, type_declarations) =

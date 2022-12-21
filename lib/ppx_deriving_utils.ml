@@ -34,18 +34,26 @@ let make_let ~name ?(pvb_attributes = []) ~value loc =
   pstr_value ~loc Nonrecursive
     [ { pvb_pat = name; pvb_expr = value; pvb_attributes; pvb_loc = loc } ]
 
-let make_const ~loc name = ptyp_constr ~loc { loc; txt = lident name } []
+let get_bool expr =
+  match expr with
+  | Pexp_construct ({ txt = Lident "true"; _ }, _) -> Ok true
+  | Pexp_construct ({ txt = Lident "false"; _ }, _) -> Ok false
+  | _ -> Error "boolean"
 
-let make_arrow ~loc params return =
-  let aux p ret = ptyp_arrow ~loc Nolabel (make_const ~loc p.txt) ret in
-  List.fold_right ~f:aux ~init:return params
+module Type = struct
+  let make_const ~loc name = ptyp_constr ~loc { loc; txt = lident name } []
 
-let make_sig ~name ~ty ?(pval_attributes = []) ?(pval_prim = []) loc =
-  psig_value ~loc
-    {
-      pval_loc = loc;
-      pval_name = { loc; txt = name };
-      pval_type = ty;
-      pval_attributes;
-      pval_prim;
-    }
+  let make_arrow ~loc params return =
+    let aux p ret = ptyp_arrow ~loc Nolabel (make_const ~loc p.txt) ret in
+    List.fold_right ~f:aux ~init:return params
+
+  let make_sig ~name ~ty ?(pval_attributes = []) ?(pval_prim = []) loc =
+    psig_value ~loc
+      {
+        pval_loc = loc;
+        pval_name = { loc; txt = name };
+        pval_type = ty;
+        pval_attributes;
+        pval_prim;
+      }
+end
