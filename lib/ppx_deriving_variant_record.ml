@@ -3,9 +3,9 @@ module List = ListLabels
 open Ppxlib
 open Ast_builder.Default
 
-let deriver = "variant_record"
+let deriver = "mk_record"
 
-let impl_variant_record ~ptype_name (constructor : constructor_declaration) =
+let impl_make_record ~ptype_name (constructor : constructor_declaration) =
   let { txt = name; _ } = constructor.pcd_name in
   let loc = constructor.pcd_loc in
   let new_name = Ut.make_let_name name ~ptype_name in
@@ -17,7 +17,7 @@ let impl_variant_record ~ptype_name (constructor : constructor_declaration) =
     ~name:(ppat_var ~loc { loc; txt = new_name })
     ~value:new_lambda
 
-let intf_variant_record ~ptype_name (constructor : constructor_declaration) =
+let intf_make_record ~ptype_name (constructor : constructor_declaration) =
   let { txt = name; _ } = constructor.pcd_name in
   let loc = constructor.pcd_loc in
   let new_name = Ut.make_let_name name ~ptype_name in
@@ -36,7 +36,7 @@ let generate_impl ~ctxt (_rec_flag, type_declarations) =
         let ext = Location.error_extensionf ~loc:ptype_loc "[todo]" in
         [ Ast_builder.Default.pstr_extension ~loc ext [] ]
     | { ptype_kind = Ptype_variant decls; ptype_name; _ } ->
-        List.map decls ~f:(impl_variant_record ~ptype_name)
+        List.map decls ~f:(impl_make_record ~ptype_name)
   in
   List.map type_declarations ~f:aux |> List.concat
 
@@ -50,7 +50,7 @@ let generate_intf ~ctxt (_rec_flag, type_declarations) =
         let ext = Location.error_extensionf ~loc:ptype_loc "[todo]" in
         [ Ast_builder.Default.psig_extension ~loc ext [] ]
     | { ptype_kind = Ptype_variant decls; ptype_name; _ } ->
-        List.map decls ~f:(intf_variant_record ~ptype_name)
+        List.map decls ~f:(intf_make_record ~ptype_name)
   in
   List.map type_declarations ~f:aux |> List.concat
 
